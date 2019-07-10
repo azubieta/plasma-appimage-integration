@@ -1,0 +1,22 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+  <interface name="org.appimage.Services1.Launcher">
+    <method name="launch">
+      <arg type="b" direction="out"/>
+      <arg name="appImagePath" type="s" direction="in"/>
+      <arg name="args" type="as" direction="in"/>
+    </method>
+    <method name="registerApp">
+      <arg type="b" direction="out"/>
+      <arg name="appImagePath" type="s" direction="in"/>
+    </method>
+    <method name="unregisterApp">
+      <arg type="b" direction="out"/>
+      <arg name="appImagePath" type="s" direction="in"/>
+    </method>
+    <method name="isRegistered">
+      <arg type="b" direction="out"/>
+      <arg name="appImagePath" type="s" direction="in"/>
+    </method>
+  </interface>
+</node>
