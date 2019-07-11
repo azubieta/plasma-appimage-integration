@@ -1,24 +1,20 @@
-#ifndef PLASMA5_APPIMAGE_EXTENSIONS_UPDATEAPPLICATIONACTION_H
-#define PLASMA5_APPIMAGE_EXTENSIONS_UPDATEAPPLICATIONACTION_H
+#pragma once
 
+// libraries
 #include <KFileItemListProperties>
 #include <KAbstractFileItemActionPlugin>
 #include <QLoggingCategory>
+#include <QMap>
+
+class QWidget;
 
 class QAction;
 
 class KFileItemListProperties;
 
-class QWidget;
-
 class OrgAppimageServices1LauncherInterface;
-namespace org {
-    namespace appimage {
-        namespace Services1 {
-            typedef ::OrgAppimageServices1LauncherInterface Launcher;
-        }
-    }
-}
+
+class OrgAppimageServices1UpdaterInterface;
 
 Q_DECLARE_LOGGING_CATEGORY(APPIMAGE_FILEITEMACTIONS)
 
@@ -37,8 +33,11 @@ private Q_SLOTS:
 
     void update();
 
+    void onUpdateTaskStarted(const QString& taskId);
+
 private:
-    org::appimage::Services1::Launcher* launcherInterface;
+    OrgAppimageServices1LauncherInterface* launcherInterface;
+    OrgAppimageServices1UpdaterInterface* updaterInterface;
 
     void showErrorMessage(const QString& title, const QString& message, QWidget* parentWidget);
 
@@ -46,5 +45,3 @@ private:
 
     QAction* createRemoveFromMenuAction(const KFileItemListProperties& fileItemInfos, QWidget* parentWidget) const;
 };
-
-#endif //PLASMA5_APPIMAGE_EXTENSIONS_UPDATEAPPLICATIONACTION_H

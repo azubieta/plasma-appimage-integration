@@ -26,10 +26,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_definitions(-DQT_NO_URL_CAST_FROM_STRING)
 
-add_subdirectory(appimageservices-interface)
-add_subdirectory(fileitem-actions)
-#ecm_optional_add_subdirectory(thumbnailer)
-#ecm_optional_add_subdirectory(metadata-extractor)
+add_subdirectory(src)
 
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)
 

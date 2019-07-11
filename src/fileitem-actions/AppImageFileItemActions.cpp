@@ -7,9 +7,11 @@
 #include <KLocalizedString>
 #include <KNotification>
 
+
 // local
 #include "AppImageFileItemActions.h"
 #include "LauncherInterface.h"
+#include "UpdaterInterface.h"
 
 // KDE plugin setup
 K_PLUGIN_FACTORY(AppImageFileItemActionsFactory, registerPlugin<AppImageFileItemActions>();)
@@ -18,10 +20,19 @@ Q_LOGGING_CATEGORY(APPIMAGE_FILEITEMACTIONS, "appimage.fileitemactions")
 
 AppImageFileItemActions::AppImageFileItemActions(QObject* parent, const QVariantList&)
     : KAbstractFileItemActionPlugin(parent),
-      launcherInterface(new org::appimage::Services1::Launcher("org.appimage.Services1.Launcher",
-                                                               "/org/appimage/Services1/Launcher",
-                                                               QDBusConnection::sessionBus(), this)) {
+      launcherInterface(new OrgAppimageServices1LauncherInterface("org.appimage.Services1.Launcher",
+                                                                  "/org/appimage/Services1/Launcher",
+                                                                  QDBusConnection::sessionBus(), this)),
 
+      updaterInterface(new OrgAppimageServices1UpdaterInterface("org.appimage.Services1.Updater",
+                                                                "/org/appimage/Services1/Updater",
+                                                                QDBusConnection::sessionBus(), this)) {
+
+    if (updaterInterface->isValid()) {
+        connect(updaterInterface, SIGNAL(taskStarted(QString)), this, SLOT(onUpdateTaskStarted(QString)));
+    } else {
+        qWarning() << "Unable to connect to the AppImage Updater Service";
+    }
 }
 
 QList<QAction*> AppImageFileItemActions::actions(const KFileItemListProperties& fileItemInfos, QWidget* parentWidget) {
@@ -39,6 +50,11 @@ QList<QAction*> AppImageFileItemActions::actions(const KFileItemListProperties& 
         actions += createRemoveFromMenuAction(fileItemInfos, parentWidget);
     }
 
+    QAction* updateAction = new QAction(QIcon::fromTheme("update-none"), "Update", parentWidget);
+    updateAction->setProperty("urls", QVariant::fromValue(fileItemInfos.urlList()));
+    updateAction->setProperty("parentWidget", QVariant::fromValue(parentWidget));
+    connect(updateAction, &QAction::triggered, this, &AppImageFileItemActions::update);
+    actions += updateAction;
 
     return actions;
 }
@@ -94,7 +110,28 @@ void AppImageFileItemActions::removeFromMenu() {
 }
 
 void AppImageFileItemActions::update() {
+    const QList<QUrl> urls = sender()->property("urls").value<QList<QUrl>>();
+    QWidget* parentWidget = sender()->property("parentWidget").value<QWidget*>();
 
+    QList<QDBusPendingReply<QString>> replies;
+    for (const QUrl& url : urls)
+        replies += updaterInterface->update(url.toString());
+
+    QString errorTitle = i18n("Update failed");
+    for (QDBusPendingReply<QString>& reply: replies) {
+        reply.waitForFinished();
+
+        if (reply.isError())
+            showErrorMessage(errorTitle, reply.error().message(), parentWidget);
+        else {
+            QString taskId = reply.value();
+            // notify failed operation
+            if (taskId.isEmpty()) {
+                QString url = urls.at(replies.indexOf(reply)).toString();
+                showErrorMessage(errorTitle, i18n("\"%0\"").arg(url), parentWidget);
+            }
+        }
+    }
 }
 
 void AppImageFileItemActions::showErrorMessage(const QString& title, const QString& message, QWidget* parentWidget) {
@@ -104,6 +141,10 @@ void AppImageFileItemActions::showErrorMessage(const QString& title, const QStri
     notify->setText(message);
     notify->setIconName("dialog-warning");
     notify->sendEvent();
+}
+
+void AppImageFileItemActions::onUpdateTaskStarted(const QString& taskId) {
+
 }
 
 #include "AppImageFileItemActions.moc"
