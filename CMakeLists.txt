@@ -14,7 +14,7 @@ find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS Core Widgets Netwo
 find_package(ECM ${KF5_MIN_VERSION} REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-find_package(KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS XmlGui I18n KIO TextWidgets Notifications)
+find_package(KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS XmlGui I18n KIO TextWidgets Notifications FileMetaData)
 
 include(KDEInstallDirs)
 include(KDECMakeSettings)
