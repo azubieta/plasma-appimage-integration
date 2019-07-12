@@ -28,11 +28,11 @@ AppImageFileItemActions::AppImageFileItemActions(QObject* parent, const QVariant
                                                                 "/org/appimage/Services1/Updater",
                                                                 QDBusConnection::sessionBus(), this)) {
 
-    if (updaterInterface->isValid()) {
-        connect(updaterInterface, SIGNAL(taskStarted(QString)), this, SLOT(onUpdateTaskStarted(QString)));
-    } else {
+    if (!launcherInterface->isValid())
+        qWarning() << "Unable to connect to the AppImage Launcher Service";
+
+    if (!updaterInterface->isValid())
         qWarning() << "Unable to connect to the AppImage Updater Service";
-    }
 }
 
 QList<QAction*> AppImageFileItemActions::actions(const KFileItemListProperties& fileItemInfos, QWidget* parentWidget) {
