@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(plasma5_appimage_extensions)
+project(plasma-appimage-integration)
 
 set(CMAKE_CXX_STANDARD 11)
 
