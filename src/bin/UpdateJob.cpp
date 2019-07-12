@@ -3,6 +3,8 @@
 #include <QDebug>
 #include <QDBusPendingReply>
 #include <KLocalizedString>
+#include <KNotification>
+#include <QTimer>
 
 // local
 #include "UpdateJob.h"
@@ -13,19 +15,41 @@ UpdateJob::UpdateJob(const QString& target) : KJob(), target(target) {
     setCapabilities(Killable);
 }
 
-void UpdateJob::onProgressTotalChanged(int value, int total) {
+void UpdateJob::onBytesTotalChanged(int total) {
     setTotalAmount(Bytes, total);
 }
 
-void UpdateJob::onProgressValueChanged(int value) {
+void UpdateJob::onBytesReceivedChanged(int value) {
     setProcessedAmount(Bytes, value);
 }
 
 void UpdateJob::onStateChanged(int state) {
-}
+    switch (state) {
+        case 10:
+            description(this, i18nc("Job heading, like 'Copying'", "Reading update data"),
+                        qMakePair<QString, QString>(i18nc("The AppImage being updated", "Source"), target));
+            break;
+        case 20:
+            description(this, i18nc("Job heading, like 'Copying'", "Looking for updates"),
+                        qMakePair<QString, QString>(i18nc("The AppImage being updated", "Source"), target));
+            break;
+        case 30:
+            description(this, i18nc("Job heading, like 'Copying'", "Downloading"),
+                        qMakePair<QString, QString>(i18nc("The AppImage being updated", "Source"), target));
+            break;
+            // final states
+        case 21:
+            setError(-2);
+            setErrorText(i18n("No updates available"));
+            emitResultDelayed();
+            break;
+        case 31:
+        case 200:
+        case -1:
+            emitResultDelayed();
+            break;
 
-void UpdateJob::onStatusMessageChanged(const QString& message) {
-    description(this, message);
+    }
 }
 
 bool UpdateJob::doKill() {
@@ -35,19 +59,32 @@ bool UpdateJob::doKill() {
 }
 
 void UpdateJob::start() {
-    validateTarget();
-
     if (error() == 0)
         connectUpdaterInterface();
 
     if (error() == 0)
-        startUpdateTasks();
+        createUpdateTask();
 
     if (error() == 0)
         connectTaskInterface();
 
+    if (error() == 0)
+        startUpdateTask();
+
+
     if (error() != 0)
-        emitResult();
+        emitResultDelayed();
+}
+
+void UpdateJob::connectUpdaterInterface() {
+    updaterInterface = new OrgAppimageServices1UpdaterInterface("org.appimage.Services1.Updater",
+                                                                "/org/appimage/Services1/Updater",
+                                                                QDBusConnection::sessionBus(), this);
+
+    if (!updaterInterface->isValid()) {
+        setError(-1);
+        setErrorText(i18n("Unable to connect to the AppImage Services"));
+    }
 }
 
 void UpdateJob::connectTaskInterface() {
@@ -60,25 +97,22 @@ void UpdateJob::connectTaskInterface() {
         setErrorText(i18n("Unable to connect to AppImage Services Updater Task interface: %0")
                          .arg(taskInterface->lastError().message())
         );
-
     } else {
-        description(this, i18n("Looking for updates"));
+        connect(taskInterface, &OrgAppimageServices1UpdaterTaskInterface::bytesTotalChanged,
+                this, &UpdateJob::onBytesTotalChanged);
 
-        connect(taskInterface, &OrgAppimageServices1UpdaterTaskInterface::progressTotalChanged,
-                this, &UpdateJob::onProgressTotalChanged);
-
-        connect(taskInterface, &OrgAppimageServices1UpdaterTaskInterface::progressValueChanged,
-                this, &UpdateJob::onProgressValueChanged);
+        connect(taskInterface, &OrgAppimageServices1UpdaterTaskInterface::bytesReceivedChanged,
+                this, &UpdateJob::onBytesReceivedChanged);
 
         connect(taskInterface, &OrgAppimageServices1UpdaterTaskInterface::stateChanged,
                 this, &UpdateJob::onStateChanged);
 
-        connect(taskInterface, &OrgAppimageServices1UpdaterTaskInterface::statusMessageChanged,
-                this, &UpdateJob::onStatusMessageChanged);
+        connect(taskInterface, &OrgAppimageServices1UpdaterTaskInterface::error,
+                this, &UpdateJob::onError);
     }
 }
 
-void UpdateJob::startUpdateTasks() {
+void UpdateJob::createUpdateTask() {
     auto reply = updaterInterface->update(target);
     reply.waitForFinished();
 
@@ -96,23 +130,34 @@ void UpdateJob::startUpdateTasks() {
     }
 }
 
-void UpdateJob::validateTarget() {
-    QFile targetFile(target);
-    if (!targetFile.exists(target)) {
-        setError(BAD_TARGET_ERROR);
-        setErrorText(i18n("Target file doesn't exists: %0").arg(target));
-        return;
+
+void UpdateJob::startUpdateTask() {
+    auto reply = taskInterface->start();
+    reply.waitForFinished();
+    if (reply.isError()) {
+        setError(DBUS_ERROR);
+        setErrorText(i18n("Update failed: %0").arg(reply.error().message()));
     }
 }
 
-void UpdateJob::connectUpdaterInterface() {
-    updaterInterface = new OrgAppimageServices1UpdaterInterface("org.appimage.Services1.Updater",
-                                                                "/org/appimage/Services1/Updater",
-                                                                QDBusConnection::sessionBus(), this);
+void UpdateJob::onError(int errorCode) {
+    QString errorTitle = i18n("Update failed");
 
-    if (!updaterInterface->isValid()) {
-        setError(-1);
-        setErrorText(i18n("Unable to connect to the AppImage Services deamon"));
-    }
+    setError(errorCode);
+    setErrorText(errorTitle);
 }
 
+void UpdateJob::notifyError(const QString& title, const QString& message, QWidget* parentWidget) {
+    KNotification* notify = new KNotification(QStringLiteral("notification"), parentWidget,
+                                              KNotification::CloseOnTimeout | KNotification::DefaultEvent);
+    notify->setTitle(title);
+    notify->setText(message);
+    notify->setIconName("dialog-warning");
+    notify->sendEvent();
+}
+
+void UpdateJob::emitResultDelayed() {
+    QTimer::singleShot(400, [this]() {
+        emitResult();
+    });
+}

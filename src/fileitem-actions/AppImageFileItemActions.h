@@ -33,8 +33,6 @@ private Q_SLOTS:
 
     void update();
 
-    void onUpdateTaskStarted(const QString& taskId);
-
 private:
     OrgAppimageServices1LauncherInterface* launcherInterface;
     OrgAppimageServices1UpdaterInterface* updaterInterface;

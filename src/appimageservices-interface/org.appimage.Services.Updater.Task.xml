@@ -3,22 +3,25 @@
   <interface name="org.appimage.Services1.Updater.Task">
     <property name="id" type="s" access="read"/>
     <property name="state" type="i" access="read"/>
-    <property name="progressValue" type="i" access="read"/>
-    <property name="progressTotal" type="i" access="read"/>
-    <property name="statusMessage" type="s" access="read"/>
+    <property name="errorCode" type="i" access="read"/>
+    <property name="bytesReceived" type="x" access="read"/>
+    <property name="bytesTotal" type="x" access="read"/>
     <signal name="stateChanged">
       <arg name="state" type="i" direction="out"/>
     </signal>
-    <signal name="statusMessageChanged">
-      <arg name="state" type="s" direction="out"/>
-    </signal>
-    <signal name="progressValueChanged">
+    <signal name="bytesReceivedChanged">
       <arg name="value" type="i" direction="out"/>
     </signal>
-    <signal name="progressTotalChanged">
-      <arg name="value" type="i" direction="out"/>
+    <signal name="bytesTotalChanged">
       <arg name="total" type="i" direction="out"/>
     </signal>
+    <signal name="finished">
+    </signal>
+    <signal name="error">
+      <arg name="code" type="i" direction="out"/>
+    </signal>
+    <method name="start">
+    </method>
     <method name="cancel">
     </method>
   </interface>

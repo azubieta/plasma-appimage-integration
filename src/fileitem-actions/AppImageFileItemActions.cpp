@@ -111,26 +111,13 @@ void AppImageFileItemActions::removeFromMenu() {
 
 void AppImageFileItemActions::update() {
     const QList<QUrl> urls = sender()->property("urls").value<QList<QUrl>>();
-    QWidget* parentWidget = sender()->property("parentWidget").value<QWidget*>();
+    QString program = "plasma-appimage-integration";
 
-    QList<QDBusPendingReply<QString>> replies;
-    for (const QUrl& url : urls)
-        replies += updaterInterface->update(url.toString());
+    for (const QUrl& url : urls) {
+        QStringList arguments;
+        arguments << "update" << url.toLocalFile();
 
-    QString errorTitle = i18n("Update failed");
-    for (QDBusPendingReply<QString>& reply: replies) {
-        reply.waitForFinished();
-
-        if (reply.isError())
-            showErrorMessage(errorTitle, reply.error().message(), parentWidget);
-        else {
-            QString taskId = reply.value();
-            // notify failed operation
-            if (taskId.isEmpty()) {
-                QString url = urls.at(replies.indexOf(reply)).toString();
-                showErrorMessage(errorTitle, i18n("\"%0\"").arg(url), parentWidget);
-            }
-        }
+        QProcess::startDetached(program, arguments);
     }
 }
 
@@ -141,10 +128,6 @@ void AppImageFileItemActions::showErrorMessage(const QString& title, const QStri
     notify->setText(message);
     notify->setIconName("dialog-warning");
     notify->sendEvent();
-}
-
-void AppImageFileItemActions::onUpdateTaskStarted(const QString& taskId) {
-
 }
 
 #include "AppImageFileItemActions.moc"

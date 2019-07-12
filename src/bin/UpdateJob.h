@@ -20,15 +20,17 @@ public:
 
     void start() override;
 
+    static void notifyError(const QString& title, const QString& message, QWidget* parentWidget = nullptr);
+
 protected slots:
 
-    void onProgressTotalChanged(int value, int total);
+    void onBytesTotalChanged(int total);
 
-    void onProgressValueChanged(int value);
+    void onBytesReceivedChanged(int value);
 
     void onStateChanged(int state);
 
-    void onStatusMessageChanged(const QString& message);
+    void onError(int errorCode);
 
     bool doKill() override;
 
@@ -39,11 +41,13 @@ private:
     OrgAppimageServices1UpdaterInterface* updaterInterface;
     OrgAppimageServices1UpdaterTaskInterface* taskInterface;
 
-    void validateTarget();
-
     void connectUpdaterInterface();
 
-    void startUpdateTasks();
+    void createUpdateTask();
 
     void connectTaskInterface();
+
+    void startUpdateTask();
+
+    void emitResultDelayed();
 };

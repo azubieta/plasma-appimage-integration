@@ -29,15 +29,6 @@ QString parseTarget(QCommandLineParser& parser) {
     }
 }
 
-void notifyError(const QString& title, const QString& message, QWidget* parentWidget = nullptr) {
-    KNotification* notify = new KNotification(QStringLiteral("notification"), parentWidget,
-                                              KNotification::CloseOnTimeout | KNotification::DefaultEvent);
-    notify->setTitle(title);
-    notify->setText(message);
-    notify->setIconName("dialog-warning");
-    notify->sendEvent();
-}
-
 void executeUpdateCommand(const QString& target) {
     KJob* job = new UpdateJob(target);
 
@@ -45,7 +36,7 @@ void executeUpdateCommand(const QString& target) {
     job->start();
 
     if (job->error() != 0)
-        notifyError(i18n("Update failed").arg(target), job->errorString());
+        UpdateJob::notifyError(i18n("Update failed").arg(target), job->errorString());
 }
 
 int main(int argc, char** argv) {
@@ -73,7 +64,6 @@ int main(int argc, char** argv) {
         QString target = parseTarget(parser);
         executeUpdateCommand(target);
     }
-
     return QApplication::exec();
 }
 
