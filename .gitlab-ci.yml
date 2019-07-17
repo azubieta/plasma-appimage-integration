@@ -1,10 +1,10 @@
 ## AppImage
 build:deb:
-  image: ubuntu
+  image: kdeneon/plasma:user-lts
   stage: build
   before_script:
     - sudo apt-get update -y
-    - sudo apt-get install -y git cmake g++ libkf5xmlgui-dev libkf5i18n-dev libkf5kio-dev libkf5textwidgets-dev libkf5notifications-dev libkf5filemetadata-dev libqt5dbus5
+    - sudo apt-get install -y git cmake g++ extra-cmake-modules gettext qtbase5-dev libkf5xmlgui-dev libkf5i18n-dev libkf5kio-dev libkf5textwidgets-dev libkf5notifications-dev libkf5filemetadata-dev libqt5dbus5
 
   script:
     - cmake -DCMAKE_INSTALL_PREFIX=`kf5-config --prefix` -DCMAKE_BUILD_TYPE=Release .
