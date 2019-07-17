@@ -1,7 +1,6 @@
 // libraries
 #include <QFile>
 #include <QDebug>
-#include <QDBusPendingReply>
 #include <KLocalizedString>
 #include <KNotification>
 #include <QTimer>

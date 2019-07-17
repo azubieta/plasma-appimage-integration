@@ -1,7 +1,6 @@
 // libraries
 #include <QIcon>
 #include <QAction>
-#include <QDBusPendingReply>
 #include <KPluginFactory>
 #include <KPluginLoader>
 #include <KLocalizedString>

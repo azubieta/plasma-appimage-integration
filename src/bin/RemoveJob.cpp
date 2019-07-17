@@ -1,6 +1,5 @@
 // libraries
 #include <KLocalizedString>
-#include <QDBusPendingCallWatcher>
 
 // local
 #include "RemoveJob.h"

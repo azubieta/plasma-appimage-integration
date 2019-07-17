@@ -1,4 +1,3 @@
-## AppImage
 build:neon-user-lts-deb:
   image: kdeneon/plasma:user-lts
   stage: build
