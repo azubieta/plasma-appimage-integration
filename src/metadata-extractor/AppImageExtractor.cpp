@@ -5,6 +5,7 @@
 #include <QJsonDocument>
 #include <QDebug>
 #include <KFileMetaData/Properties>
+#include <KF5/kconfig_version.h>
 
 // local
 #include "AppImageExtractor.h"
@@ -47,15 +48,16 @@ void KFileMetaData::AppImageExtractor::extract(ExtractionResult* result) {
         if (!nameValue.isEmpty())
             result->add(Property::Title, nameValue);
 
-//         Property::Description is not supported until KF5 5.53.0
+//         Property::Description and Property::License are not supported until KF5 5.53.0
+#if (QT_VERSION_CHECK(KCONFIG_VERSION_MAJOR, KCONFIG_VERSION_MINOR, KCONFIG_VERSION_PATCH) >= QT_VERSION_CHECK(5, 53, 0))
         QString summary = root.value("summary").toString();
         if (!summary.isEmpty())
             result->add(Property::Description, summary);
 
-
         QString license = root.value("license").toString();
         if (!license.isEmpty())
             result->add(Property::License, license);
+#endif
 
         QJsonValue links = root.value("links");
         QJsonObject linksOjbect = links.toObject();;
