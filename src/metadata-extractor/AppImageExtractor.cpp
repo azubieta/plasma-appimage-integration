@@ -4,6 +4,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QDebug>
+#include <KFileMetaData/Properties>
 
 // local
 #include "AppImageExtractor.h"
@@ -42,14 +43,19 @@ void KFileMetaData::AppImageExtractor::extract(ExtractionResult* result) {
         QJsonDocument document = QJsonDocument::fromJson(response.toLocal8Bit());
         QJsonObject root = document.object();
 
-        QJsonValue nameValue = root.value("name");
-        result->add(Property::Title, nameValue.toVariant());
+        QString nameValue = root.value("name").toString();
+        if (!nameValue.isEmpty())
+            result->add(Property::Title, nameValue);
 
-        QJsonValue summary = root.value("summary");
-        result->add(Property::Description, summary.toString());
+//         Property::Description is not supported until KF5 5.53.0
+        QString summary = root.value("summary").toString();
+        if (!summary.isEmpty())
+            result->add(Property::Description, summary);
 
-        QJsonValue license = root.value("license");
-        result->add(Property::License, license.toString());
+
+        QString license = root.value("license").toString();
+        if (!license.isEmpty())
+            result->add(Property::License, license);
 
         QJsonValue links = root.value("links");
         QJsonObject linksOjbect = links.toObject();;

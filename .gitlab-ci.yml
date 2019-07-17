@@ -1,5 +1,5 @@
 ## AppImage
-build:deb:
+build:neon-user-lts-deb:
   image: kdeneon/plasma:user-lts
   stage: build
   before_script:
@@ -9,7 +9,7 @@ build:deb:
   script:
     - cmake -DCMAKE_INSTALL_PREFIX=`kf5-config --prefix` -DCMAKE_BUILD_TYPE=Release .
     - make -j`nproc`
-    - cpack -G DEB
+    - cpack -G DEB -R 0.1.0-neon-user-lts
   artifacts:
     paths:
       - plasma-appimage-integration*.deb
