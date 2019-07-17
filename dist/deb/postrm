@@ -1,0 +1,7 @@
+#! /bin/bash
+
+set -e
+
+/usr/bin/appimage-services self-uninstall
+
+rm /usr/bin/appimage-services

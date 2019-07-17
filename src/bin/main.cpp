@@ -10,6 +10,7 @@
 
 // local
 #include "UpdateJob.h"
+#include "RemoveJob.h"
 
 
 QString parseTarget(QCommandLineParser& parser) {
@@ -39,6 +40,17 @@ void executeUpdateCommand(const QString& target) {
         UpdateJob::notifyError(i18n("Update failed").arg(target), job->errorString());
 }
 
+void executeRemoveCommand(const QString& target) {
+    KJob* job = new RemoveJob(target);
+
+    KIO::getJobTracker()->registerJob(job);
+    job->start();
+
+    if (job->error() != 0)
+        UpdateJob::notifyError(i18n("Remove failed").arg(target), job->errorString());
+
+}
+
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
     QApplication::setApplicationName("plasma-appimage-integration");
@@ -64,6 +76,12 @@ int main(int argc, char** argv) {
         QString target = parseTarget(parser);
         executeUpdateCommand(target);
     }
+
+    if (command == "remove") {
+        QString target = parseTarget(parser);
+        executeRemoveCommand(target);
+    }
+
     return QApplication::exec();
 }
 

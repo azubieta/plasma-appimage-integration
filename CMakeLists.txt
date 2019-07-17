@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
-project(plasma-appimage-integration)
+project(
+    plasma-appimage-integration
+    VERSION 0.1.0
+    LANGUAGES CXX
+)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -27,6 +31,8 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_definitions(-DQT_NO_URL_CAST_FROM_STRING)
 
 add_subdirectory(src)
+add_subdirectory(res)
+add_subdirectory(dist)
 
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)
 

@@ -1,0 +1,12 @@
+#! /bin/bash
+
+set -e
+
+echo "Installing appimage-services"
+echo "Downloading latest version from opencode.net"
+APPIMAGE_SERVICES_URL="https://www.opencode.net/azubieta/AppImageService/-/jobs/artifacts/master/raw/appimage-services-x86_64.AppImage?job=build:AppImage"
+
+wget $APPIMAGE_SERVICES_URL -O /usr/bin/appimage-services
+
+chmod +x /usr/bin/appimage-services
+/usr/bin/appimage-services self-install
