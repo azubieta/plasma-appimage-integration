@@ -13,6 +13,7 @@ Features:
 
 ## Build
 **Dependencies**
+- appimage-services
 - cmake
 - gcc (>=4.8)
 - KF5::XmlGui 
@@ -32,4 +33,8 @@ cmake -DCMAKE_INSTALL_PREFIX=`kf5-config --prefix` ..
 make -j`nproc`
 sudo make install
 
+# Install AppImage Services
+wget https://www.opencode.net/azubieta/AppImageService/-/jobs/artifacts/master/raw/appimage-services-x86_64.AppImage?job=build:AppImage -O appimage-services.AppImage
+chmod +x appimage-services.AppImage
+./appimage-services.AppImage self-install
 ```
