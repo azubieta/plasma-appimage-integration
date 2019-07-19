@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Service
+Name=AppImage
+ServiceTypes=ThumbCreator
+MimeType=application/x-iso9660-appimage;application/vnd.appimage;
+CacheThumbnail=true
+X-KDE-Library=appimage-thumbnailer
+ThumbnailerVersion=6
