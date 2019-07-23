@@ -12,3 +12,19 @@ build:neon-user-lts-deb:
   artifacts:
     paths:
       - plasma-appimage-integration*.deb
+
+build:arch_pkg:
+  image: archlinux/base
+  stage: build
+  before_script:
+    - pacman -Sy --noconfirm base-devel cmake git kf5 kdelibs4support
+    - useradd build
+  script:
+    - mkdir build
+    - chmod a+rwx build
+    - cp -v dist/arch/* build
+    - cd build && su build -c "makepkg"
+    - mv plasma-appimage-integration*.pkg.tar.xz ..
+  artifacts:
+    paths:
+      - plasma-appimage-integration*.pkg.tar.xz

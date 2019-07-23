@@ -1,6 +1,6 @@
-#! /bin/bash
-
+#!/usr/bin/env sh
 set -e
+
 
 /usr/bin/appimage-services self-uninstall
 

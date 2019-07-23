@@ -1,5 +1,4 @@
-#! /bin/bash
-
+#!/usr/bin/env sh
 set -e
 
 APPIMAGE_SERVICES_BIN_PATH=/usr/bin/appimage-services

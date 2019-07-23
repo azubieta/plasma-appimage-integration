@@ -1,0 +1,51 @@
+# Maintainer: Alexis Lopez Zubieta <contact@azubieta.net>
+projectname=plasma-appimage-integration
+
+pkgname="$projectname-git"
+pkgver=0.1.0
+pkgrel=1
+epoch=
+pkgdesc="Plasma AppImage integration extensions"
+arch=('x86_64')
+url="https://www.opencode.net/azubieta/$projectname"
+license=('MIT')
+groups=('appimage')
+depends=('qt5-base' 'kfilemetadata' 'knotifications')
+makedepends=('git' 'cmake' 'kfilemetadata' 'knotifications' 'kdelibs4support')
+checkdepends=()
+optdepends=()
+provides=("$projectname=$pkgver")
+conflicts=()
+replaces=()
+backup=()
+options=()
+install=plasma-appimage-integration-git.install
+changelog=
+source=("git+https://www.opencode.net/azubieta/plasma-appimage-integration.git")
+sha256sums=('SKIP')
+noextract=()
+validpgpkeys=()
+
+prepare() {
+    GIT_COMMIT=`git rev-parse --verify HEAD`
+
+    cd "$srcdir/$projectname"
+    git checkout $GIT_COMMIT
+}
+
+build() {
+  cd "$srcdir/$projectname"
+
+  cmake -DCMAKE_INSTALL_PREFIX=`kf5-config --prefix` -DCMAKE_BUILD_TYPE=Release .
+  make
+}
+
+package() {
+  cd "$srcdir/$projectname"
+
+  # must re-run CMake in order to populate the list of library files to bundle
+  # see 2175cfb for more information
+  cmake .
+
+  make DESTDIR="$pkgdir" install
+}
