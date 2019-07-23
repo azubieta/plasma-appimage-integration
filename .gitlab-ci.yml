@@ -22,7 +22,7 @@ build:arch_pkg:
   script:
     - mkdir build
     - chmod a+rwx build
-    - cp dist/arch/PKGBUILD build
+    - cp -v dist/arch/* build
     - cd build && su build -c "makepkg"
     - mv plasma-appimage-integration*.pkg.tar.xz ..
   artifacts:
