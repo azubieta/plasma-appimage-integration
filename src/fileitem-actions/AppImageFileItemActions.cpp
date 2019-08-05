@@ -27,33 +27,38 @@ AppImageFileItemActions::AppImageFileItemActions(QObject* parent, const QVariant
                                                                 "/org/appimage/Services1/Updater",
                                                                 QDBusConnection::sessionBus(), this)) {
 
-    if (!launcherInterface->isValid())
-        qWarning() << "Unable to connect to the AppImage Launcher Service";
 
-    if (!updaterInterface->isValid())
-        qWarning() << "Unable to connect to the AppImage Updater Service";
 }
 
 QList<QAction*> AppImageFileItemActions::actions(const KFileItemListProperties& fileItemInfos, QWidget* parentWidget) {
     QList<QAction*> actions;
 
-
-    const QList<QUrl> urlList = fileItemInfos.urlList();
-    if (urlList.size() == 1) {
-        if (launcherInterface->isRegistered(urlList.first().toString()))
-            actions += createRemoveFromMenuAction(fileItemInfos, parentWidget);
-        else
+    if (launcherInterface->isValid()) {
+        const QList<QUrl> urlList = fileItemInfos.urlList();
+        if (urlList.size() == 1) {
+            if (launcherInterface->isRegistered(urlList.first().toString()))
+                actions += createRemoveFromMenuAction(fileItemInfos, parentWidget);
+            else
+                actions += createAddToMenuAction(fileItemInfos, parentWidget);
+        } else {
             actions += createAddToMenuAction(fileItemInfos, parentWidget);
+            actions += createRemoveFromMenuAction(fileItemInfos, parentWidget);
+        }
     } else {
-        actions += createAddToMenuAction(fileItemInfos, parentWidget);
-        actions += createRemoveFromMenuAction(fileItemInfos, parentWidget);
+        qWarning() << "Discarding AppImage Add/Remove to Menu actions. Unable to connect to the AppImage Launcher Service";
     }
 
-    QAction* updateAction = new QAction(QIcon::fromTheme("update-none"), "Update", parentWidget);
-    updateAction->setProperty("urls", QVariant::fromValue(fileItemInfos.urlList()));
-    updateAction->setProperty("parentWidget", QVariant::fromValue(parentWidget));
-    connect(updateAction, &QAction::triggered, this, &AppImageFileItemActions::update);
-    actions += updateAction;
+    if (launcherInterface->isValid()) {
+        QAction* updateAction = new QAction(QIcon::fromTheme("update-none"), "Update", parentWidget);
+        updateAction->setProperty("urls", QVariant::fromValue(fileItemInfos.urlList()));
+        updateAction->setProperty("parentWidget", QVariant::fromValue(parentWidget));
+        connect(updateAction, &QAction::triggered, this, &AppImageFileItemActions::update);
+        actions += updateAction;
+    } else {
+        qWarning() << "Discarding AppImage Update action. Unable to connect to the AppImage Launcher Updater";
+    }
+
+    actions += createInstallAction(fileItemInfos, parentWidget);
 
     return actions;
 }
@@ -76,6 +81,15 @@ QAction* AppImageFileItemActions::createAddToMenuAction(const KFileItemListPrope
     addToMenuAction->setProperty("parentWidget", QVariant::fromValue(parentWidget));
     connect(addToMenuAction, &QAction::triggered, this, &AppImageFileItemActions::addToMenu);
     return addToMenuAction;
+}
+
+QAction *AppImageFileItemActions::createInstallAction(const KFileItemListProperties &fileItemInfos,
+                                                      QWidget *parentWidget) const {
+    QAction* installAction = new QAction(QIcon::fromTheme("install"), "Install", parentWidget);
+    installAction->setProperty("urls", QVariant::fromValue(fileItemInfos.urlList()));
+    installAction->setProperty("parentWidget", QVariant::fromValue(parentWidget));
+    connect(installAction, &QAction::triggered, this, &AppImageFileItemActions::install);
+    return installAction;
 }
 
 void AppImageFileItemActions::addToMenu() {
@@ -115,6 +129,18 @@ void AppImageFileItemActions::update() {
     for (const QUrl& url : urls) {
         QStringList arguments;
         arguments << "update" << url.toLocalFile();
+
+        QProcess::startDetached(program, arguments);
+    }
+}
+
+void AppImageFileItemActions::install() {
+    const QList<QUrl> urls = sender()->property("urls").value<QList<QUrl>>();
+    QString program = "plasma-appimage-integration";
+
+    for (const QUrl& url : urls) {
+        QStringList arguments;
+        arguments << "install" << url.toLocalFile();
 
         QProcess::startDetached(program, arguments);
     }

@@ -1,1 +1,1 @@
-install(FILES "AppImage Services.conf" DESTINATION "${CMAKE_INSTALL_SYSCONFDIR}/The AppImage Project")
+install(FILES "org.appimage.services.conf" DESTINATION "${CMAKE_INSTALL_SYSCONFDIR}/xdg")

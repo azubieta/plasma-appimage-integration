@@ -33,6 +33,8 @@ private Q_SLOTS:
 
     void update();
 
+    void install();
+
 private:
     OrgAppimageServices1LauncherInterface* launcherInterface;
     OrgAppimageServices1UpdaterInterface* updaterInterface;
@@ -42,4 +44,6 @@ private:
     QAction* createAddToMenuAction(const KFileItemListProperties& fileItemInfos, QWidget* parentWidget) const;
 
     QAction* createRemoveFromMenuAction(const KFileItemListProperties& fileItemInfos, QWidget* parentWidget) const;
+
+    QAction* createInstallAction(const KFileItemListProperties& fileItemInfos, QWidget* parentWidget) const;
 };
