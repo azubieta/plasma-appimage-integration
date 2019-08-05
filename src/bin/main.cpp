@@ -12,6 +12,7 @@
 #include "UpdateJob.h"
 #include "RemoveJob.h"
 #include "InstallJob.h"
+#include "UninstallJob.h"
 
 
 QString parseTarget(QCommandLineParser& parser) {
@@ -59,6 +60,13 @@ void executeInstallCommand(const QString& target) {
     job->start();
 }
 
+void executeUninstallCommand(const QString& target) {
+    KJob* job = new UninstallJob(target);
+
+    KIO::getJobTracker()->registerJob(job);
+    job->start();
+}
+
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
     QApplication::setApplicationName("plasma-appimage-integration");
@@ -93,6 +101,11 @@ int main(int argc, char** argv) {
     if (command == "install") {
         QString target = parseTarget(parser);
         executeInstallCommand(target);
+    }
+
+    if (command == "uninstall") {
+        QString target = parseTarget(parser);
+        executeUninstallCommand(target);
     }
     return QApplication::exec();
 }
