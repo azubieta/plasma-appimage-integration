@@ -6,16 +6,11 @@ post_install() {
     APPIMAGE_SERVICES_BIN_PATH=/usr/bin/appimage-services
     APPIMAGE_SERVICES_URL="https://www.opencode.net/azubieta/AppImageService/-/jobs/artifacts/master/raw/appimage-services-x86_64.AppImage?job=build:AppImage"
 
-    if [ -f "$APPIMAGE_SERVICES_BIN_PATH" ]
-    then
-        echo "Using appimamge-services bin from $APPIMAGE_SERVICES_BIN_PATH"
-    else
-        echo "Installing appimage-services to $APPIMAGE_SERVICES_BIN_PATH"
-        wget "$APPIMAGE_SERVICES_URL" -O "$APPIMAGE_SERVICES_BIN_PATH"
+    echo "Installing appimage-services to $APPIMAGE_SERVICES_BIN_PATH"
+    wget -N "$APPIMAGE_SERVICES_URL" -O "$APPIMAGE_SERVICES_BIN_PATH"
 
-        chmod +x "$APPIMAGE_SERVICES_BIN_PATH"
-        "$APPIMAGE_SERVICES_BIN_PATH" self-install
-    fi
+    chmod +x "$APPIMAGE_SERVICES_BIN_PATH"
+    "$APPIMAGE_SERVICES_BIN_PATH" self-install
 }
 
 ## arg 1:  the old package version
