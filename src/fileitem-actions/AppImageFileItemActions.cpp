@@ -27,33 +27,36 @@ AppImageFileItemActions::AppImageFileItemActions(QObject* parent, const QVariant
                                                                 "/org/appimage/Services1/Updater",
                                                                 QDBusConnection::sessionBus(), this)) {
 
-    if (!launcherInterface->isValid())
-        qWarning() << "Unable to connect to the AppImage Launcher Service";
 
-    if (!updaterInterface->isValid())
-        qWarning() << "Unable to connect to the AppImage Updater Service";
 }
 
 QList<QAction*> AppImageFileItemActions::actions(const KFileItemListProperties& fileItemInfos, QWidget* parentWidget) {
     QList<QAction*> actions;
 
-
-    const QList<QUrl> urlList = fileItemInfos.urlList();
-    if (urlList.size() == 1) {
-        if (launcherInterface->isRegistered(urlList.first().toString()))
-            actions += createRemoveFromMenuAction(fileItemInfos, parentWidget);
-        else
+    if (launcherInterface->isValid()) {
+        const QList<QUrl> urlList = fileItemInfos.urlList();
+        if (urlList.size() == 1) {
+            if (launcherInterface->isRegistered(urlList.first().toString()))
+                actions += createRemoveFromMenuAction(fileItemInfos, parentWidget);
+            else
+                actions += createAddToMenuAction(fileItemInfos, parentWidget);
+        } else {
             actions += createAddToMenuAction(fileItemInfos, parentWidget);
+            actions += createRemoveFromMenuAction(fileItemInfos, parentWidget);
+        }
     } else {
-        actions += createAddToMenuAction(fileItemInfos, parentWidget);
-        actions += createRemoveFromMenuAction(fileItemInfos, parentWidget);
+        qWarning() << "Unable to connect to the AppImage Launcher Service";
     }
 
-    QAction* updateAction = new QAction(QIcon::fromTheme("update-none"), "Update", parentWidget);
-    updateAction->setProperty("urls", QVariant::fromValue(fileItemInfos.urlList()));
-    updateAction->setProperty("parentWidget", QVariant::fromValue(parentWidget));
-    connect(updateAction, &QAction::triggered, this, &AppImageFileItemActions::update);
-    actions += updateAction;
+    if (launcherInterface->isValid()) {
+        QAction* updateAction = new QAction(QIcon::fromTheme("update-none"), "Update", parentWidget);
+        updateAction->setProperty("urls", QVariant::fromValue(fileItemInfos.urlList()));
+        updateAction->setProperty("parentWidget", QVariant::fromValue(parentWidget));
+        connect(updateAction, &QAction::triggered, this, &AppImageFileItemActions::update);
+        actions += updateAction;
+    } else {
+        qWarning() << "Unable to connect to the AppImage Updater Service";
+    }
 
     return actions;
 }
