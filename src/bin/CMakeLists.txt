@@ -3,6 +3,7 @@ add_executable(
     main.cpp
     UpdateJob.cpp
     RemoveJob.cpp
+    InstallJob.cpp
 )
 
 target_link_libraries(plasma-appimage-integration appimageservices-interfaces KF5::KIOWidgets KF5::I18n KF5::Notifications)
