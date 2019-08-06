@@ -20,8 +20,6 @@ public:
 
     void start() override;
 
-    static void notifyError(const QString& title, const QString& message, QWidget* parentWidget = nullptr);
-
 protected slots:
 
     void onBytesTotalChanged(int total);

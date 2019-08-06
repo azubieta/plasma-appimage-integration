@@ -12,7 +12,8 @@ RemoveJob::RemoveJob(const QString& target, QObject* parent)
                                                                       QDBusConnection::sessionBus(), this)) {}
 
 void RemoveJob::start() {
-    description(this, i18n("Removing launcher entry"));
+    description(this, i18n("Removing launcher entry"),
+                qMakePair<QString, QString>(i18nc("Target AppImage", "Application"), target));
 
     auto reply = launcherInterface->unregisterApp(target);
     if (reply.isError()) {
@@ -30,7 +31,7 @@ void RemoveJob::callFinishedSlot(QDBusPendingCallWatcher* watcher) {
         setError(-1);
         setErrorText(watcher->error().message());
     } else
-        infoMessage(this, i18n("Application successfully removed"));
+        infoMessage(this, i18n("Entry removed"));
 
     // notify result delayed
     QTimer::singleShot(1000, this, &RemoveJob::emitResult);
