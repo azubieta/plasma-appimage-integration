@@ -13,6 +13,7 @@
 #include "RemoveJob.h"
 #include "InstallJob.h"
 #include "UninstallJob.h"
+#include "TargetDataLoader.h"
 
 
 QString parseTarget(QCommandLineParser& parser) {
@@ -90,21 +91,26 @@ int main(int argc, char** argv) {
 
     if (command == "update") {
         QString target = parseTarget(parser);
+        TargetDataLoader(target).loadTargetDataIntoApplication();
         executeUpdateCommand(target);
     }
 
     if (command == "remove") {
         QString target = parseTarget(parser);
+        TargetDataLoader(target).loadTargetDataIntoApplication();
         executeRemoveCommand(target);
     }
 
     if (command == "install") {
         QString target = parseTarget(parser);
+        TargetDataLoader(target).loadTargetDataIntoApplication();
+
         executeInstallCommand(target);
     }
 
     if (command == "uninstall") {
         QString target = parseTarget(parser);
+        TargetDataLoader(target).loadTargetDataIntoApplication();
         executeUninstallCommand(target);
     }
     return QApplication::exec();
