@@ -5,6 +5,11 @@
       <arg type="s" direction="out"/>
       <arg name="appImagePath" type="s" direction="in"/>
     </method>
+    <method name="extractApplicationIcon">
+      <arg type="b" direction="out"/>
+      <arg name="appImagePath" type="s" direction="in"/>
+      <arg name="targetPath" type="s" direction="in"/>
+    </method>
     <method name="listContents">
       <arg type="as" direction="out"/>
       <arg name="appImagePath" type="s" direction="in"/>
