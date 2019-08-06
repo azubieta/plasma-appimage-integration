@@ -106,8 +106,14 @@ void AppImageFileItemActions::addToMenu() {
 
 void AppImageFileItemActions::removeFromMenu() {
     const QList<QUrl> urls = sender()->property("urls").value<QList<QUrl>>();
-    for (const QUrl& url : urls)
-        launcherInterface->unregisterApp(url.toString());
+    QString program = "plasma-appimage-integration";
+
+    for (const QUrl& url : urls) {
+        QStringList arguments;
+        arguments << "remove" << url.toLocalFile();
+
+        QProcess::startDetached(program, arguments);
+    }
 }
 
 void AppImageFileItemActions::update() {
