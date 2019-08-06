@@ -10,6 +10,7 @@
 
 // local
 #include "UpdateJob.h"
+#include "RegisterJob.h"
 #include "RemoveJob.h"
 #include "InstallJob.h"
 #include "UninstallJob.h"
@@ -64,6 +65,11 @@ int main(int argc, char** argv) {
     if (command == "remove") {
         target = parseTarget(parser);
         job = new RemoveJob(target);
+    }
+
+    if (command == "register") {
+        target = parseTarget(parser);
+        job = new RegisterJob(target);
     }
 
     if (command == "install") {

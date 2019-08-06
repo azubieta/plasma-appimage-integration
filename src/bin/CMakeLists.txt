@@ -2,6 +2,7 @@ add_executable(
     plasma-appimage-integration
     main.cpp
     UpdateJob.cpp
+    RegisterJob.cpp
     RemoveJob.cpp
     InstallJob.cpp
     UninstallJob.cpp
