@@ -11,6 +11,19 @@ Features:
 - Application metada shown in the details view
 - Launch assistant to skip the give execution permission step before running an AppImage
 
+## Usage
+
+After installing `plasma-appimage-integration` from sources you will also need to install AppImageServices. 
+Instructions are provided in the **Build** section. If you installed it from the binaries provided, AppImageServices 
+will be already installed.
+
+As AppImageServices depends on DBus and it runs on user space you must ensure having such feature available on 
+your system. Debian, Ubuntu and derivatives user will have to install `dbus-user-session` and restart the system
+for it to be enable.
+
+To use this software just open Dolphin (the kde file browser) and you will get AppImage files thumbnails, 
+enhanced metadata and file item actions to easily mange your applications.  
+
 ## Build
 **Dependencies**
 - cmake (>=3.12)
