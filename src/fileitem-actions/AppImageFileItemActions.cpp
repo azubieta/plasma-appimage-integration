@@ -94,32 +94,26 @@ QAction *AppImageFileItemActions::createInstallAction(const KFileItemListPropert
 
 void AppImageFileItemActions::addToMenu() {
     const QList<QUrl> urls = sender()->property("urls").value<QList<QUrl>>();
-    QWidget* parentWidget = sender()->property("parentWidget").value<QWidget*>();
+    QString program = "plasma-appimage-integration";
 
-    QList<QDBusPendingReply<bool>> replies;
-    for (const QUrl& url : urls)
-        replies += launcherInterface->registerApp(url.toString());
+    for (const QUrl& url : urls) {
+        QStringList arguments;
+        arguments << "register" << url.toLocalFile();
 
-    QString errorTitle = i18n("Add to launcher failed");
-    for (QDBusPendingReply<bool>& reply: replies) {
-        reply.waitForFinished();
-
-        if (reply.isError())
-            showErrorMessage(errorTitle, reply.error().message(), parentWidget);
-        else {
-            // notify failed operation
-            if (!reply.value()) {
-                QString url = urls.at(replies.indexOf(reply)).toString();
-                showErrorMessage(errorTitle, i18n("\"%0\"\nthe file seems broken").arg(url), parentWidget);
-            }
-        }
+        QProcess::startDetached(program, arguments);
     }
 }
 
 void AppImageFileItemActions::removeFromMenu() {
     const QList<QUrl> urls = sender()->property("urls").value<QList<QUrl>>();
-    for (const QUrl& url : urls)
-        launcherInterface->unregisterApp(url.toString());
+    QString program = "plasma-appimage-integration";
+
+    for (const QUrl& url : urls) {
+        QStringList arguments;
+        arguments << "remove" << url.toLocalFile();
+
+        QProcess::startDetached(program, arguments);
+    }
 }
 
 void AppImageFileItemActions::update() {

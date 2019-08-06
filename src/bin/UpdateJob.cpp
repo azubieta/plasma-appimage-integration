@@ -1,6 +1,4 @@
 // libraries
-#include <QFile>
-#include <QDebug>
 #include <KLocalizedString>
 #include <KNotification>
 #include <QTimer>
@@ -25,16 +23,13 @@ void UpdateJob::onBytesReceivedChanged(int value) {
 void UpdateJob::onStateChanged(int state) {
     switch (state) {
         case 10:
-            description(this, i18nc("Job heading, like 'Copying'", "Reading update data"),
-                        qMakePair<QString, QString>(i18nc("The AppImage being updated", "Source"), target));
+            infoMessage(this, i18nc("Job heading, like 'Copying'", "Reading update data"));
             break;
         case 20:
-            description(this, i18nc("Job heading, like 'Copying'", "Looking for updates"),
-                        qMakePair<QString, QString>(i18nc("The AppImage being updated", "Source"), target));
+            infoMessage(this, i18nc("Job heading, like 'Copying'", "Looking for updates"));
             break;
         case 30:
-            description(this, i18nc("Job heading, like 'Copying'", "Downloading"),
-                        qMakePair<QString, QString>(i18nc("The AppImage being updated", "Source"), target));
+            infoMessage(this, i18nc("Job heading, like 'Copying'", "Downloading update"));
             break;
             // final states
         case 21:
@@ -58,6 +53,9 @@ bool UpdateJob::doKill() {
 }
 
 void UpdateJob::start() {
+    description(this, i18nc("Job heading, like 'Copying'", "Updating application"),
+                qMakePair<QString, QString>(i18nc("The AppImage being updated", "Application"), target));
+
     if (error() == 0)
         connectUpdaterInterface();
 
@@ -144,15 +142,6 @@ void UpdateJob::onError(int errorCode) {
 
     setError(errorCode);
     setErrorText(errorTitle);
-}
-
-void UpdateJob::notifyError(const QString& title, const QString& message, QWidget* parentWidget) {
-    KNotification* notify = new KNotification(QStringLiteral("notification"), parentWidget,
-                                              KNotification::CloseOnTimeout | KNotification::DefaultEvent);
-    notify->setTitle(title);
-    notify->setText(message);
-    notify->setIconName("dialog-warning");
-    notify->sendEvent();
 }
 
 void UpdateJob::emitResultDelayed() {

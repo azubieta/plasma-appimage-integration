@@ -15,8 +15,8 @@ void UninstallJob::start() {
     qDebug() << "calling pkexec appimage-services install " << target;
 
     connect(&process, SIGNAL(finished(int)), this, SLOT(onProcessFinished(int)));
-    description(this, i18n("Uninstalling Application"),
-                qMakePair<QString, QString>(i18nc("The AppImage being uninstalled", "Source"), target));
+    description(this, i18n("Uninstalling application"),
+                qMakePair<QString, QString>(i18nc("The AppImage being uninstalled", "Application"), target));
 
     process.start();
 }
@@ -27,6 +27,8 @@ void UninstallJob::onProcessFinished(int exitCode) {
     if (exitCode != 0) {
         setError(exitCode);
         setErrorText(process.readAllStandardError());
+    } else {
+        infoMessage(this, i18n("Application uninstalled"));
     }
 
     // notify result delayed

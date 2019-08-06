@@ -10,9 +10,11 @@
 
 // local
 #include "UpdateJob.h"
+#include "RegisterJob.h"
 #include "RemoveJob.h"
 #include "InstallJob.h"
 #include "UninstallJob.h"
+#include "TargetDataLoader.h"
 
 
 QString parseTarget(QCommandLineParser& parser) {
@@ -30,41 +32,6 @@ QString parseTarget(QCommandLineParser& parser) {
         qWarning() << "Missing target AppImage";
         parser.showHelp(1);
     }
-}
-
-void executeUpdateCommand(const QString& target) {
-    KJob* job = new UpdateJob(target);
-
-    KIO::getJobTracker()->registerJob(job);
-    job->start();
-
-    if (job->error() != 0)
-        UpdateJob::notifyError(i18n("Update failed").arg(target), job->errorString());
-}
-
-void executeRemoveCommand(const QString& target) {
-    KJob* job = new RemoveJob(target);
-
-    KIO::getJobTracker()->registerJob(job);
-    job->start();
-
-    if (job->error() != 0)
-        UpdateJob::notifyError(i18n("Remove failed").arg(target), job->errorString());
-
-}
-
-void executeInstallCommand(const QString& target) {
-    KJob* job = new InstallJob(target);
-
-    KIO::getJobTracker()->registerJob(job);
-    job->start();
-}
-
-void executeUninstallCommand(const QString& target) {
-    KJob* job = new UninstallJob(target);
-
-    KIO::getJobTracker()->registerJob(job);
-    job->start();
 }
 
 int main(int argc, char** argv) {
@@ -88,25 +55,43 @@ int main(int argc, char** argv) {
 
     const QString& command = positionalArguments.at(0);
 
+    QString target;
+    KJob* job = nullptr;
     if (command == "update") {
-        QString target = parseTarget(parser);
-        executeUpdateCommand(target);
+        target = parseTarget(parser);
+        job = new UpdateJob(target);
     }
 
     if (command == "remove") {
-        QString target = parseTarget(parser);
-        executeRemoveCommand(target);
+        target = parseTarget(parser);
+        job = new RemoveJob(target);
+    }
+
+    if (command == "register") {
+        target = parseTarget(parser);
+        job = new RegisterJob(target);
     }
 
     if (command == "install") {
-        QString target = parseTarget(parser);
-        executeInstallCommand(target);
+        target = parseTarget(parser);
+        job = new InstallJob(target);
     }
 
     if (command == "uninstall") {
-        QString target = parseTarget(parser);
-        executeUninstallCommand(target);
+        target = parseTarget(parser);
+        job = new UninstallJob(target);
     }
+
+    if (!target.isEmpty()) {
+        auto targetDataLoader = new TargetDataLoader(target, &app);
+        targetDataLoader->loadTargetDataIntoApplication();
+    }
+
+    if (job != nullptr) {
+        KIO::getJobTracker()->registerJob(job);
+        QMetaObject::invokeMethod(job, "start");
+    }
+
     return QApplication::exec();
 }
 

@@ -15,8 +15,8 @@ void InstallJob::start() {
     qDebug() << "calling pkexec appimage-services install " << target;
 
     connect(&process, SIGNAL(finished(int)), this, SLOT(onProcessFinished(int)));
-    description(this, i18n("Installing Application"),
-                qMakePair<QString, QString>(i18nc("The AppImage being installed", "Source"), target));
+    description(this, i18n("Installing application"),
+                qMakePair<QString, QString>(i18nc("The AppImage being installed", "Application"), target));
 
     process.start();
 }
